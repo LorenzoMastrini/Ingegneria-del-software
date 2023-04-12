@@ -67,12 +67,12 @@ public class HandDetection {
         // show biggest contour
         Mat imgBiggestContour = new Mat(binary.rows(), binary.cols(), CvType.CV_8UC1, new Scalar(0, 0, 0));
         Imgproc.drawContours(imgBiggestContour, contours, biggestContourIndex, new Scalar(255, 255, 255), 2, 8, new Mat(), 0, new Point());
-        HighGui.imshow("maxContour", imgBiggestContour);
+        //HighGui.imshow("maxContour", imgBiggestContour);
 	}
 	
 	
 	
-	static void filterImage(Mat img) {
+	public static void filterImage(Mat img) {
 		Mat erodeElement  = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
 		Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10, 10));
 		

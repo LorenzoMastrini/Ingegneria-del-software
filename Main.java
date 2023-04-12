@@ -24,11 +24,15 @@ public class Main {
             System.exit(-1);
         }
         
-        BackgroundSubtractorMOG2 MOG2 = Video.createBackgroundSubtractorMOG2(); //OpeCV object to remove the background
+        OpticalFlow optFlow = new OpticalFlow();
+        
+        BackgroundSubtractorMOG2 MOG2 = Video.createBackgroundSubtractorMOG2(); //OpenCV object to remove the background
         
         Ball ball = new Ball();
         
         while (true) {
+        	int angle = optFlow.run(capture, ball.position.x, ball.position.y);
+        	
             Mat src = new Mat();
             capture.read(src); //read frame from webcam
             if (src.empty()) {
@@ -48,7 +52,7 @@ public class Main {
             //HighGui.imshow("fgMask", hand.fgMask);
             hand.imgProcessing();
             
-            ball.basicMovement(hand);
+            ball.basicMovement(hand, angle);
             Imgproc.circle(src, ball.position, 20, new Scalar(0, 0, 255), -1);
 			
             HighGui.imshow("src", src);
@@ -57,9 +61,8 @@ public class Main {
                 break;
             }
         }
-	
+        capture.release();
+        HighGui.destroyAllWindows();
 	}
-
-	
 	
 }
