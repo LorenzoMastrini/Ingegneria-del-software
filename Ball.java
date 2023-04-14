@@ -1,16 +1,28 @@
-package progetto_ingegneriaSW;
+
+
 
 import org.opencv.core.CvType;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
 public class Ball {
-	double dx = 5, dy = 5; //shift values; they represent the speed and the direction of the ball
-	double x = 100, y = 100; //initial position coordinates
-	Point position = new Point(x, y);
+	private double dx, dy; //shift values; they represent the speed and the direction of the ball
+	public Point position;
+	long time;
 	
-	void basicMovement(HandDetection hand, int angle) {
+	public Ball (int x, int y) {
+		//x and y are initial position coordinates
+		this.position = new Point(x, y);
+		this.dx = 5;
+		this.dy = 5;
+		this.time = 0;
+	}
+	
+	
+	
+	void basicMovement(MatOfPoint contours, double angle) {
 		position.x += dx;
         position.y += dy;
         
@@ -26,46 +38,48 @@ public class Ball {
 			dx *= -1;
 		}
 		
-		MatOfPoint2f prova = new MatOfPoint2f();
-		hand.biggestContours.convertTo(prova, CvType.CV_32FC2);
-		if (!prova.empty()) {
-			if (Imgproc.pointPolygonTest(prova, position, false) >= 0) {
-	        	if (angle >= 337 || angle < 23) { //0
-	        		System.out.println("Destra");
-	        		dx = 10;
-	        		dy = 0;
-	        	} else if (angle >= 23 && angle < 67) { //45
-	        		System.out.println("Basso-destra");
-	        		dx = 5;
-	        		dy = 5;
-	        	} else if (angle >= 67 && angle < 112) { //90
-	        		System.out.println("Basso");
-	        		dx = 0;
-	        		dy = 10;
-	        	} else if (angle >= 112 && angle < 157) { //135
-	        		System.out.println("Basso-sinistra");
-	        		dx = 5;
-	        		dy = -5;
-	        	} else if (angle >= 157 && angle < 202) { //180
-	        		System.out.println("Sinistra");
-	        		dx = -10;
-	        		dy = 0;
-	        	} else if (angle >= 202 && angle < 247) { //225
-	        		System.out.println("Alto-sinistra");
-	        		dx = -5;
-	        		dy = -5;
-	        	} else if (angle >= 247 && angle < 292) { //270
-	        		System.out.println("Alto");
-	        		dx = 0;
-	        		dy = -10;
-	        	} else if (angle >= 292 && angle < 337) { //315
-	        		System.out.println("Alto-destra");
-	        		dx = 5;
-	        		dy = -5;
-	        	}
+		MatOfPoint2f hand = new MatOfPoint2f(); //this object contains the points that represent the contours of the hand
+		contours.convertTo(hand, CvType.CV_32FC2); //this step is necessary to use the function pointPolygonTest
+		if (!hand.empty()) {
+			if (Imgproc.pointPolygonTest(hand, position, false) >= 0 && System.currentTimeMillis() - time > 500) {
+				time = System.currentTimeMillis();
+				if (position.x + 20 <= 620 && position.x - 20 >= 20 && position.y + 20 <= 460 && position.y - 20 >= 20) {
+		        	if (angle >= 337 || angle < 23 && angle != 0) { //0
+		        		System.out.println("Destra");
+		        		dx = 5;
+		        		dy = 0;
+		        	} else if (angle >= 23 && angle < 67) { //45
+		        		System.out.println("Basso-destra");
+		        		dx = 5;
+		        		dy = 5;
+		        	} else if (angle >= 67 && angle < 112) { //90
+		        		System.out.println("Basso");
+		        		dx = 0;
+		        		dy = 5;
+		        	} else if (angle >= 112 && angle < 157) { //135
+		        		System.out.println("Basso-sinistra");
+		        		dx = 5;
+		        		dy = -5;
+		        	} else if (angle >= 157 && angle < 202) { //180
+		        		System.out.println("Sinistra");
+		        		dx = -5;
+		        		dy = 0;
+		        	} else if (angle >= 202 && angle < 247) { //225
+		        		System.out.println("Alto-sinistra");
+		        		dx = -5;
+		        		dy = -5;
+		        	} else if (angle >= 247 && angle < 292) { //270
+		        		System.out.println("Alto");
+		        		dx = 0;
+		        		dy = -5;
+		        	} else if (angle >= 292 && angle < 337) { //315
+		        		System.out.println("Alto-destra");
+		        		dx = 5;
+		        		dy = -5;
+		        	}
+				}
 			}
 		}
-		
 		return;
 	}
 }
