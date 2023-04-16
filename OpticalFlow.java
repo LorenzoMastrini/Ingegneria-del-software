@@ -1,10 +1,8 @@
-
-
 import java.util.ArrayList;
 import org.opencv.core.*;
-import org.opencv.highgui.HighGui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.Video;
+//import org.opencv.highgui.HighGui;
 
 class OpticalFlow implements Runnable {
 	private Thread t;

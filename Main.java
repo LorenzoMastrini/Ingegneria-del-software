@@ -1,5 +1,8 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.FlowLayout;
+import java.io.IOException;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -11,7 +14,7 @@ import org.opencv.video.Video;
 import org.opencv.videoio.VideoCapture;
 
 public class Main {
-	static void start() {
+	static void start() throws IOException {
 		VideoCapture capture = new VideoCapture(0); //capture the webcam input
         if (!capture.isOpened()) {
             //error in opening the video input
@@ -26,6 +29,13 @@ public class Main {
         
         Ball ball = new Ball(100, 100); //creates a new Ball object
         
+        //Instantiate JFrame
+        JFrame frame = new JFrame();
+        frame.setLayout(new FlowLayout());
+        JLabel lbl = new JLabel();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
         //main loop
         while (true) {
         	//src is used to make all image processing operations, and it is the one the is displayed
@@ -35,7 +45,7 @@ public class Main {
                 break;
             }
             Core.flip(src, src, 1); //makes the image mirrored
-            
+                        
             //src1 e src2 are the matrixes passed to the optical flow algorithm and they are used only for this purpose
             Mat src1 = new Mat();
             capture.read(src1); //read frame from webcam
@@ -52,63 +62,33 @@ public class Main {
         	
             optFlow.set(src1, src2, ball.position); //sets optical flow parameters to make it work
             
-            Mat fg_mask = Main.imgProcessing(src, MOG2); //makes some technical operation on the image and returns the foreground mask
+            Mat fg_mask = ImgProcessor.filter(src, MOG2); //makes some technical operation on the image and returns the foreground mask
             
-            MatOfPoint biggestContours = Main.contours(fg_mask); //returns the hand contours used to determine if the ball encounter the hand (in the Ball class)
+            MatOfPoint biggestContours = ImgProcessor.contours(fg_mask); //returns the hand contours used to determine if the ball encounter the hand (in the Ball class)
             
             ball.basicMovement(biggestContours, optFlow.angle);
             Imgproc.circle(src, ball.position, 20, new Scalar(0, 0, 255), -1); //draws the ball
             
+            lbl.setIcon(new ImageIcon(ImgProcessor.bufferedImage(src)));
+            frame.add(lbl);
+            frame.pack();
+/*
             HighGui.imshow("src", src); //display the image
             int keyboard = HighGui.waitKey(1);
-            if (keyboard == 'q' || keyboard == 27) {
+            System.out.println(keyboard);
+            if (keyboard == 'q' || keyboard == 81) {
+            	System.out.println("prova");
                 break;
             }
+*/
         }
         capture.release();
         HighGui.destroyAllWindows();
+        System.out.println("destroy All Windows");
+        return;
 	}
 
 	
 	
-	public static Mat imgProcessing(Mat input, BackgroundSubtractorMOG2 background_subtractor) {
-		Mat mask = new Mat();
-		      
-		background_subtractor.apply(input, mask); //Get the foreground mask (it is gray scale)
-        //Convert the gray scale to black and white with a threshold
-        //the 250 threshold can be modified fitting the webcam and needs, setting it lower will make it more sensitive (also to noise)
-        Imgproc.threshold(mask, mask, 250, 255, Imgproc.THRESH_BINARY);
-                
-        return mask;
-	}
 	
-	
-	
-	public static MatOfPoint contours(Mat mask) {
-		Mat binary = mask;
-		
-        //detect all contours
-        List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat(); //not used
-        Imgproc.findContours(binary, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        
-        //find biggest contours
-        //int biggestContourIndex = 0; //used only for drawing purposes
-        int maxContourArea = -1000;
-        MatOfPoint biggestContours = new MatOfPoint();
-        for (int i = 0; i < contours.size(); i++) {       
-            if (Imgproc.contourArea(contours.get(i)) > maxContourArea) {
-                maxContourArea = (int) Imgproc.contourArea(contours.get(i));
-                //biggestContourIndex = i;
-                biggestContours = contours.get(i); //extract from all contour list only biggest contours (hand)
-            }
-        }
-/*
-        // show biggest contour
-        Mat imgBiggestContour = new Mat(binary.rows(), binary.cols(), CvType.CV_8UC1, new Scalar(0, 0, 0));
-        Imgproc.drawContours(imgBiggestContour, contours, biggestContourIndex, new Scalar(255, 255, 255), 2, 8, new Mat(), 0, new Point());
-        HighGui.imshow("maxContour", imgBiggestContour);
-*/
-        return biggestContours;
-	}
 }

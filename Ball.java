@@ -1,6 +1,3 @@
-
-
-
 import org.opencv.core.CvType;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -58,8 +55,8 @@ public class Ball {
 		        		dy = 5;
 		        	} else if (angle >= 112 && angle < 157) { //135
 		        		System.out.println("Basso-sinistra");
-		        		dx = 5;
-		        		dy = -5;
+		        		dx = -5;
+		        		dy = 5;
 		        	} else if (angle >= 157 && angle < 202) { //180
 		        		System.out.println("Sinistra");
 		        		dx = -5;
