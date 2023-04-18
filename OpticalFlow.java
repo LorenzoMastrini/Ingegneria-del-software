@@ -1,5 +1,9 @@
 import java.util.ArrayList;
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.Video;
 //import org.opencv.highgui.HighGui;
@@ -8,8 +12,7 @@ class OpticalFlow implements Runnable {
 	private Thread t;
 	private Mat frame1;
 	private Mat frame2;
-	private Point position; // position of the ball, used to determine the analysis zone of optical flow
-	public double angle = 0; //it indicates the general direction of the movement; used in the Ball class
+	public static Mat angle_mat = new Mat(); //it indicates the general direction of the movement; used in the Ball class
 	
 	public OpticalFlow() {
 		this.frame1 = new Mat();
@@ -20,7 +23,7 @@ class OpticalFlow implements Runnable {
 	@Override
 	public void run() {
 		while(true) {
-			if (!this.frame1.empty() || !this.frame2.empty()) {
+			if (!this.frame1.empty() || !this.frame2.empty()) { //starts only if there are two frames to be analyzed
 		    	Mat prvs = new Mat();
 		        Imgproc.cvtColor(frame1, prvs, Imgproc.COLOR_BGR2GRAY);
 		        
@@ -39,26 +42,9 @@ class OpticalFlow implements Runnable {
 		        float factor = (float) ((1.0/360.0)*(180.0/255.0));
 		        Mat new_angle = new Mat();
 		        Core.multiply(angle, new Scalar(factor), new_angle);
+		        angle_mat = angle;
 		        
-		        //this code is for limiting the zone of calculation of optical flow, based on the position of the ball
-		        int elements = 0; //number of sub-matrix pixels considered in the calculation of the mean of the angles
-		        double angle_sum = 0;
-		        double angle_mean = 0;
-		        //this "builds" a square around the ball to detect only the movements of the pixels inside it
-		        for (int j = (int) position.x - 4; j < (int) position.x + 4; j++) {
-		        	for (int i = (int) position.y - 4; i < (int) position.y + 4; i++) {
-		    			if (position.x - 20 >= 0 && position.x + 20 <= 640 && position.y - 20 >= 0 && position.y <= 480) { //this condition avoids problems in the corners of the image
-	    					if (!angle.empty()) {
-	    						angle_sum += angle.get(i, j)[0];
-			        			elements++;
-	    					}
-		    			}
-		        	}
-		        }
-		        angle_mean = (angle_sum / elements) % 360; //all the angles are between 0 degrees and 360 degrees
-		        this.angle = angle_mean;
-		        //https://stackoverflow.com/questions/37849313/java-opencv-detecting-roi-creating-submat-and-copy-to-original-mat		        
-		        
+/*				//only used to visualize the optical flow
 		        //build hsv image
 		        ArrayList<Mat> _hsv = new ArrayList<>() ;
 		        Mat hsv = new Mat(), hsv8 = new Mat(), bgr = new Mat();
@@ -67,10 +53,7 @@ class OpticalFlow implements Runnable {
 		        _hsv.add(magn_norm);
 		        Core.merge(_hsv, hsv);
 		        hsv.convertTo(hsv8, CvType.CV_8U, 255.0);
-		        Imgproc.cvtColor(hsv8, bgr, Imgproc.COLOR_HSV2BGR);		        
-		        
-/*
-		        //only used to visualize the optical flow
+		        Imgproc.cvtColor(hsv8, bgr, Imgproc.COLOR_HSV2BGR);
 		        if (!bgr.empty()) {
 		        	HighGui.imshow("optical flow", bgr);
 		            int keyboard = HighGui.waitKey(1);
@@ -95,9 +78,32 @@ class OpticalFlow implements Runnable {
 	
 	
 	
-	public void set(Mat frame1, Mat frame2, Point position) {
+	public void set(Mat frame1, Mat frame2) {
 		this.frame1 = frame1;
 		this.frame2 = frame2;
-		this.position = position;
+	}
+	
+	
+	
+	public static double getAngle(Point position) {
+        //this code is for limiting the zone of calculation of optical flow, based on the position of the ball
+        int elements = 0; //number of sub-matrix pixels considered in the calculation of the mean of the angles
+        double angle_sum = 0;
+        double angle_mean = 0;
+        //this "builds" a square around the ball to detect only the movements of the pixels inside it
+        for (int j = (int) position.x - 4; j < (int) position.x + 4; j++) {
+        	for (int i = (int) position.y - 4; i < (int) position.y + 4; i++) {
+    			if (position.x - 20 >= 0 && position.x + 20 <= 640 && position.y - 20 >= 0 && position.y <= 480) { //this condition avoids problems in the corners of the image
+					if (!angle_mat.empty()) {
+						angle_sum += angle_mat.get(i, j)[0];
+	        			elements++;
+					}
+    			}
+        	}
+        }
+        angle_mean = (angle_sum / elements) % 360; //all the angles are between 0 degrees and 360 degrees
+        //https://stackoverflow.com/questions/37849313/java-opencv-detecting-roi-creating-submat-and-copy-to-original-mat		        
+        
+        return angle_mean;
 	}
 }
