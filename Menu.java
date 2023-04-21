@@ -7,8 +7,7 @@ public class Menu {
 	public static void main(String[] args) throws IOException{
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME); //load OpenCV library
 		
-		Main.start(3); //main loop
-		//Main.tutorial(); //main loop with one single ball
+		Main.start(5); //main loop (the parameter is the number of balls we want to spawn)
 		
 		return;
 	}

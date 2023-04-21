@@ -7,7 +7,7 @@ public class Ball implements Runnable {
 	public double dx, dy; //shift values; they represent the speed and the direction of the ball
 	public Point position;
 	private long time;
-	static int counter = 0;
+	//static int counter = 0;
 	
 	public Ball (int x, int y) {
 		//x and y are the initial position coordinates
@@ -15,7 +15,7 @@ public class Ball implements Runnable {
 		this.dx = 5;
 		this.dy = 5;
 		this.time = 0;
-		counter++;
+		//counter++;
 	}
 
 
