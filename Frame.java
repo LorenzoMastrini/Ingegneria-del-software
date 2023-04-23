@@ -1,67 +1,56 @@
 package prova_collisione;
 
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class Frame extends JFrame implements KeyListener{
-	Panel panel = new Panel();
+public class Frame extends JFrame implements KeyListener {
+	public Game gm;
+	Panel menu_panel;
 	
-	Frame(){
-		this.setSize(800, 600);
+
+
+	public Frame() {
+		this.setSize(640, 480);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
-		this.add(panel);
 		this.addKeyListener(this);
 	}
-	
-	public void callComponents() {
-		panel.components();
-	}
-	
-	public void updatePanel() {
-		panel.repaint();
-	}
-	
-	/*public void collision() {
-		if(panel.p.intersects(panel.pozzo)) {
-			panel.increase = true;
-			panel.g
-		}
-		else {
-			panel.increase = false;
-		}
-		
-		if(panel.e.intersects(panel.pozzo)) {
-			panel.decrease = true;
-		}
-		else {
-			panel.decrease = false;
-		}
-	}*/
+
+	   
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(panel.gm.getPoints() < 10 && (panel.second > 0 || panel.minute > 0)) {
-			panel.p.keyPressed(e);
-			panel.e.keyPressedLetter(e);
+		if (gm == null) { //the game itself is not started yet, so we are in the initial game menu
 			
-			panel.collision();
-			
-			this.updatePanel();
+		} else {
+			if(gm.getPoints() < 10 && (gm.second > 0 || gm.minute > 0)) {
+				if (gm.game_panel.p != null) {
+					gm.game_panel.p.keyPressed(e);
+				}
+				if (gm.game_panel.e != null) {
+					gm.game_panel.e.keyPressedLetter(e);
+				}
+				
+				gm.game_panel.collision();
+				
+			} else if(gm.getPoints() == 10 || (gm.second == 0 && gm.minute == 0)) {
+				System.out.println("fine gioco");
+			}
 		}
-		else if(panel.gm.getPoints() == 10 || (panel.second == 0 && panel.minute == 0)) {
-			panel.timer.stop();
-			this.updatePanel();
-			panel.gm.closeGame(e);
-		}
+		
 	}
+	
+	
+	
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
+		//we have to override this method because the class implements the KeyListener interface
 	}
+	
+	
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub	
+		//we have to override this method because the class implements the KeyListener interface	
 	}	
 }
