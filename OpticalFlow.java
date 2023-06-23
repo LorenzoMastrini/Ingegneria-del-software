@@ -10,6 +10,7 @@ import org.opencv.video.Video;
 
 class OpticalFlow implements Runnable {
 	private Thread t;
+	private boolean interrupted;
 	private Mat frame1;
 	private Mat frame2;
 	public static Mat angle_mat = new Mat(); //it indicates the general direction of the movement; used in the Ball class
@@ -17,12 +18,13 @@ class OpticalFlow implements Runnable {
 	public OpticalFlow() {
 		this.frame1 = new Mat();
 		this.frame2 = new Mat();
+		this.interrupted = false;
 	}
 	
 	
 	@Override
 	public void run() {
-		while(true) {
+		while(!interrupted) {
 			if (!this.frame1.empty() || !this.frame2.empty()) { //starts only if there are two frames to be analyzed
 		    	Mat prvs = new Mat();
 		        Imgproc.cvtColor(frame1, prvs, Imgproc.COLOR_BGR2GRAY);
@@ -76,6 +78,11 @@ class OpticalFlow implements Runnable {
 	      }
 	}
 	
+	
+	//method used in the Level class to end the execution of this thread
+	public void stop(boolean interrupted) {
+		this.interrupted = true;
+	}
 	
 	
 	public void set(Mat frame1, Mat frame2) {

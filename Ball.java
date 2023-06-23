@@ -7,14 +7,16 @@ public class Ball implements Runnable {
 	public double dx, dy; //shift values; they represent the speed and the direction of the ball
 	public Point position;
 	private long time;
+	private Level level;
 	//static int counter = 0;
 	
-	public Ball (int x, int y) {
+	public Ball (int x, int y, Level level) {
 		//x and y are the initial position coordinates
 		this.position = new Point(x, y);
 		this.dx = 5;
 		this.dy = 5;
 		this.time = 0;
+		this.level = level;
 		//counter++;
 	}
 
@@ -45,8 +47,8 @@ public class Ball implements Runnable {
 			}
 			
 			MatOfPoint2f hand = new MatOfPoint2f(); //this object contains the points that represent the contours of the hand
-			if (!Main.biggestContours.empty()) {
-				Main.biggestContours.convertTo(hand, CvType.CV_32FC2); //this step is necessary to use the function pointPolygonTest
+			if (!level.biggestContours.empty()) {
+				level.biggestContours.convertTo(hand, CvType.CV_32FC2); //this step is necessary to use the function pointPolygonTest
 				if (!hand.empty()) {
 					if (Imgproc.pointPolygonTest(hand, position, false) >= 0 && System.currentTimeMillis() - time > 100) {
 						time = System.currentTimeMillis();
