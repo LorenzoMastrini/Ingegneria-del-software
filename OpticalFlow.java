@@ -109,7 +109,6 @@ class OpticalFlow implements Runnable {
         	}
         }
         angle_mean = (angle_sum / elements) % 360; //all the angles are between 0 degrees and 360 degrees
-        //https://stackoverflow.com/questions/37849313/java-opencv-detecting-roi-creating-submat-and-copy-to-original-mat		        
         
         return angle_mean;
 	}

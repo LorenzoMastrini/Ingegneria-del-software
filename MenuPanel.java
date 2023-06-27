@@ -2,7 +2,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -11,7 +10,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 	private JButton baseLvButton;
 	private JButton intermediateLvButton;
 	private JButton advancedLvButton;
-	private JButton tutorialLvButton;
+	private JButton trainingLvButton;
 	private JButton quitButton;
 	
 	
@@ -49,12 +48,12 @@ public class MenuPanel extends JPanel implements ActionListener {
 		this.add(advancedLvButton);
 		
 		//button for the advanced level
-		tutorialLvButton = new JButton();
-		tutorialLvButton.addActionListener(this);
-		tutorialLvButton.setBounds(0, 418, 200, 50);
-		tutorialLvButton.setText("Addestramento");
-		tutorialLvButton.setFocusable(false);
-		this.add(tutorialLvButton);
+		trainingLvButton = new JButton();
+		trainingLvButton.addActionListener(this);
+		trainingLvButton.setBounds(0, 418, 200, 50);
+		trainingLvButton.setText("Addestramento");
+		trainingLvButton.setFocusable(false);
+		this.add(trainingLvButton);
 		
 		//button for exiting the game
 		quitButton = new JButton();
@@ -63,11 +62,10 @@ public class MenuPanel extends JPanel implements ActionListener {
 		quitButton.setText("Esci dal gioco");
 		quitButton.setFocusable(false);
 		this.add(quitButton);
-				
 		
-		
+		//sets up the JPanel properties
 		this.setBackground(Color.white);
-		this.setBounds(0, 0, 640, 480);
+		this.setBounds(0, 0, Level.MAX_WIDTH, Level.MAX_HEIGHT);
 		this.setLayout(new BorderLayout());
 	}
 
@@ -78,25 +76,25 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//level 1
 		if (e.getSource() == baseLvButton) {
 			Level baseLevel = new Level(); //instantiate the level at base difficulty
-	        baseLevel.start(1);
+	        baseLevel.start();
 		}
 		
 		//level 2
 		if (e.getSource() == intermediateLvButton) {
 			Level intermediateLevel = new Level(); //instantiate the level at medium difficulty
-			intermediateLevel.start(3);
+			intermediateLevel.start();
 		}
 		
 		//level 3
 		if (e.getSource() == advancedLvButton) {
 			Level advancedLevel = new Level(); //instantiate the level at high difficulty
-			advancedLevel.start(5);
+			advancedLevel.start();
 		}
 		
 		//introduction level
-		if (e.getSource() == tutorialLvButton) {
+		if (e.getSource() == trainingLvButton) {
 			Level tutorialLevel = new Level(); //instantiate the level at medium difficulty
-			tutorialLevel.start(1);
+			tutorialLevel.start();
 		}
 		
 		//exit the game
@@ -104,6 +102,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 			System.exit(0);
 		}
 		
+		//when a button is pressed we have to change the JPanel on the frame, so we delete the current panel from the frame
 		Menu.appFrame.getContentPane().removeAll(); //remove the menuPanel from the JFrame
 		Menu.appFrame.revalidate();
 		Menu.appFrame.repaint();

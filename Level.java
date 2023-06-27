@@ -1,79 +1,69 @@
-import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
-import java.util.Random;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Timer;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.video.BackgroundSubtractorMOG2;
 import org.opencv.video.Video;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
 
+
 public class Level implements Runnable {
+	public static final double MAX_UPS = 10;
+	public static int MAX_WIDTH;
+	public static int MAX_HEIGHT;
+	public List<Ball> ballList;
+	public static MatOfPoint biggestContours;
+	public static BufferedImage currentFrame; //used in the GamePanel class to draw the images read by the camera
+	private boolean end; //flag that indicates if the game is over, to stop all the threads
 	private Thread t;
-	private int n_balls;
-	public MatOfPoint biggestContours;
-	
-	private JPanel gamePanel;
+	private VideoCapture capture;
+	private GamePanel gamePanel;
 	private int points;
-	public boolean end;
 	Timer timer;
 	int second = 10, minute = 0;
 	String ddSecond, ddMinute;
 	DecimalFormat dFormat = new DecimalFormat("00");
+	private int counter;
+	
 	
 	
 	public Level() {
+		capture = new VideoCapture(0); //capture the camera input
+        if (!capture.isOpened()) {
+            System.out.println("Unable to open camera!"); //error in opening the video input
+            System.exit(-1);
+        }
+        //save the maximum values of width and height of the image (in pixels) based on the resolution of the camera
+        MAX_WIDTH = (int) capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
+    	MAX_HEIGHT = (int) capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
+        
 		//set up the JPanel to be added to the JFrame (Menu.appFrame)
-		gamePanel = new JPanel();
-		gamePanel.setBackground(Color.black);
+		gamePanel = new GamePanel(this);
 		
+		counter = 0;
+		ballList = new ArrayList<Ball>();
 		this.points = 0;
 		end = false;
 		biggestContours = new MatOfPoint();
 	}
 
 	
+	
 	@Override
 	public void run() {
-		VideoCapture capture = new VideoCapture(0); //capture the webcam input
-        if (!capture.isOpened()) {
-            System.out.println("Unable to open camera!"); //error in opening the video input
-            System.exit(-1);
-        }
-        int max_resolution_width = (int) capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
-        int max_resolution_height = (int) capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
-        
 		BackgroundSubtractorMOG2 MOG2 = Video.createBackgroundSubtractorMOG2(); //OpenCV object to remove the background
         
-        OpticalFlow optFlow = new OpticalFlow(); //instantiate the OpticalFlow thread (runs during the whole program execution)
+        OpticalFlow optFlow = new OpticalFlow(); //instantiate the OpticalFlow thread (runs during the whole Level thread execution)
         optFlow.start();
-        
-        Menu.appFrame.add(gamePanel);
-        JLabel lbl = new JLabel(); //To display the image in a JFrame
-        
-        Random rand = new Random();
-        Ball[] balls = new Ball[n_balls]; //array of balls, with every ball that will be spawned during the game
-        //creates a new Ball object (and starts the corresponding thread) each iteration
-        for (int i = 0; i < n_balls; i++) {
-        	//create the balls in a random initial position
-        	balls[i] = new Ball(rand.nextInt((max_resolution_width - 20 - 20) + 1) + 20, rand.nextInt((max_resolution_height - 20 - 20) + 1) + 20, this); //the 20s are the radius of the balls
-        	Thread t = new Thread(balls[i]);
-            t.start();
-        }
-        
-        //these three variables are used to draw a new ball each 10 seconds (in the while loop)
-        long time = 0;
-        boolean flag_first_ball = true;
-        int current_balls = 0;
+                
+        //(PROVVISORIO) these variable is used to increment the points each 10 seconds (in the while loop)
+        long time = System.currentTimeMillis();;
         
         //main loop
         while (!end) {
@@ -105,27 +95,22 @@ public class Level implements Runnable {
             
             biggestContours = ImgProcessor.contours(fg_mask); //returns the hand contours used to determine if the ball encounter the hand (in the Ball class)
             
-            if (flag_first_ball) { //entered only for the first iteration of the cycle, to spawn the first ball
-            	time = System.currentTimeMillis(); 
-            	flag_first_ball = false;
-            	current_balls = 1;
-            }
-            if (System.currentTimeMillis() - time > 10000 && current_balls < n_balls) { //each 10 seconds this adds a new ball
+            if (System.currentTimeMillis() - time > 10000) { //each 10 seconds increment the points
             	time = System.currentTimeMillis();
-            	current_balls++;
-            	this.points++;
-            }
-            for (int i = 0; i < current_balls; i++) {
-            	Imgproc.circle(src, balls[i].position, 20, new Scalar(0, 0, 255), -1); //draws the ball(s)
+            	this.counter++;
             }
             
-            lbl.setIcon(new ImageIcon(ImgProcessor.bufferedImage(src)));
-            gamePanel.add(lbl);
+            this.update(this); //checks if we have to update the game in terms of how many balls are on screen, and eventually adds new ones
+            
+            currentFrame = ImgProcessor.bufferedImage(src); //buffered image used in the method paintComponent() in GamePanel class to draw the source image into the game panel
+            gamePanel.repaint(); //draw the image and every graphic component of the game (balls, target, timer, ...)
+            
+            Menu.appFrame.add(gamePanel);
             Menu.appFrame.revalidate();
             Menu.appFrame.repaint();
-            //Menu.appFrame.pack();
             
-            if (points == 1) {
+            //if the game is over stop the opticalFlow thread and set the variable 'end' to true so that the level thread stops too
+            if (counter == 4) {
             	end = true;
             	optFlow.stop(true);
             }
@@ -137,22 +122,46 @@ public class Level implements Runnable {
 
 	
 	
-	public void start(int n) {
+	public void start() {
 		if (t == null) {
 	         t = new Thread(this);
-	         n_balls = n;
 	         t.start();
 	      }
 	}
 	
 	
 	
+	public void update(Level level) {
+		if (Ball.isReadyToSpawn(level)) {
+			Ball newBall = new Ball();
+			ballList.add(newBall);
+			Thread t = new Thread(newBall);
+            t.start();
+		}
+	}
+	
+	
+	
+	public void updatePoints(boolean increase) { //increase or decrease the points whether the ball was red or black
+		if (increase) {
+			this.points++;
+			System.out.println("Nuovo punteggio: " + points);
+		} else {
+			this.points--;
+		}
+	}
+	
+	
+	
 	public void endGame() {
-		Menu.appFrame.remove(gamePanel); //remove the menuPanel from the JFrame
-		Menu.appFrame.revalidate();
-		Menu.appFrame.repaint();
+		for (Ball ball : ballList) { //iterate through the list
+			ball.finished();
+		}
+		ballList.clear(); //delete all the balls from the list
 		
-		//go back to the main menu
+		Menu.appFrame.remove(gamePanel); //remove the gamePanel from the JFrame
+		
+		//"go back" to the main menu
 		MenuPanel menuPanel = new MenuPanel();
 		Menu.appFrame.add(menuPanel);
 		Menu.appFrame.revalidate();
