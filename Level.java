@@ -9,17 +9,17 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.video.BackgroundSubtractorMOG2;
 import org.opencv.video.Video;
 import org.opencv.videoio.VideoCapture;
-import org.opencv.videoio.Videoio;
 
 
 
 public class Level implements Runnable {
-	public static final double MAX_UPS = 10;
+	public static final double MAX_UPS = 20;
 	public static int MAX_WIDTH;
 	public static int MAX_HEIGHT;
 	public List<Ball> ballList;
 	public static MatOfPoint biggestContours;
 	public static BufferedImage currentFrame; //used in the GamePanel class to draw the images read by the camera
+	public static int chosenDifficulty;
 	private boolean end; //flag that indicates if the game is over, to stop all the threads
 	private Thread t;
 	private VideoCapture capture;
@@ -30,26 +30,34 @@ public class Level implements Runnable {
 	String ddSecond, ddMinute;
 	DecimalFormat dFormat = new DecimalFormat("00");
 	private int counter;
+	private int counterNegativeBalls;
+	public boolean isPaused;
+	private OpticalFlow optFlow;
+	private boolean interrupted;
 	
 	
 	
-	public Level() {
+	public Level(int difficulty) {
 		capture = new VideoCapture(0); //capture the camera input
         if (!capture.isOpened()) {
             System.out.println("Unable to open camera!"); //error in opening the video input
             System.exit(-1);
         }
         //save the maximum values of width and height of the image (in pixels) based on the resolution of the camera
-        MAX_WIDTH = (int) capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
-    	MAX_HEIGHT = (int) capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
+        //MAX_WIDTH = (int) capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
+    	//MAX_HEIGHT = (int) capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
         
 		//set up the JPanel to be added to the JFrame (Menu.appFrame)
 		gamePanel = new GamePanel(this);
 		
+		chosenDifficulty = difficulty;
+		counterNegativeBalls = 1;
 		counter = 0;
-		ballList = new ArrayList<Ball>();
+		this.ballList = new ArrayList<Ball>();
 		this.points = 0;
-		end = false;
+		this.end = false;
+		this.isPaused = false;
+		this.interrupted = false;
 		biggestContours = new MatOfPoint();
 	}
 
@@ -59,7 +67,7 @@ public class Level implements Runnable {
 	public void run() {
 		BackgroundSubtractorMOG2 MOG2 = Video.createBackgroundSubtractorMOG2(); //OpenCV object to remove the background
         
-        OpticalFlow optFlow = new OpticalFlow(); //instantiate the OpticalFlow thread (runs during the whole Level thread execution)
+        this.optFlow = new OpticalFlow(); //instantiate the OpticalFlow thread (runs during the whole Level thread execution)
         optFlow.start();
                 
         //(PROVVISORIO) these variable is used to increment the points each 10 seconds (in the while loop)
@@ -91,7 +99,7 @@ public class Level implements Runnable {
         	
             optFlow.set(src1, src2); //pass to the optical flow class two consecutive frames to make it work
             
-            Mat fg_mask = ImgProcessor.filter(src, MOG2); //makes some technical operation on the image and returns the foreground mask
+            Mat fg_mask = ImgProcessor.filter(src, MOG2); //processing operations on the image and returns the foreground mask
             
             biggestContours = ImgProcessor.contours(fg_mask); //returns the hand contours used to determine if the ball encounter the hand (in the Ball class)
             
@@ -100,24 +108,21 @@ public class Level implements Runnable {
             	this.counter++;
             }
             
-            this.update(this); //checks if we have to update the game in terms of how many balls are on screen, and eventually adds new ones
-            
             currentFrame = ImgProcessor.bufferedImage(src); //buffered image used in the method paintComponent() in GamePanel class to draw the source image into the game panel
-            gamePanel.repaint(); //draw the image and every graphic component of the game (balls, target, timer, ...)
+            if(!this.isPaused) {
+            	this.update(this); //checks if we have to update the game in terms of how many balls are on screen, and eventually adds new ones
+                
+                gamePanel.repaint(); //draw the image and every graphic component of the game (balls, target, timer, ...)
+            }
             
             Menu.appFrame.add(gamePanel);
             Menu.appFrame.revalidate();
             Menu.appFrame.repaint();
-            
-            //if the game is over stop the opticalFlow thread and set the variable 'end' to true so that the level thread stops too
-            if (counter == 4) {
-            	end = true;
-            	optFlow.stop(true);
-            }
         }
-
-        capture.release();
-        endGame();
+        
+        if (!interrupted) { //if the game has been interrupted earlier, we don't call endGame() because it was called from another class
+        	endGame(false);
+        }
 	}
 
 	
@@ -132,39 +137,93 @@ public class Level implements Runnable {
 	
 	
 	public void update(Level level) {
-		if (Ball.isReadyToSpawn(level)) {
-			Ball newBall = new Ball();
-			ballList.add(newBall);
-			Thread t = new Thread(newBall);
-            t.start();
+		if (chosenDifficulty == 0) { //in level 0 we have only one positive ball
+			if (ballList.isEmpty()) {
+				Ball newBall; //create a new ball
+				newBall = new Ball(true); //we pass 'true' as argument because the spawned ball is positive
+				ballList.add(newBall);
+				Thread t = new Thread(newBall);
+	            t.start();
+			}
+		} else if (chosenDifficulty == 2 || chosenDifficulty == 3) { //in levels 2 and 3 we introduce negative balls
+			if (Ball.isReadyToSpawn(level)) {
+				Ball newBall; //create a new ball
+				if (counterNegativeBalls % 4 == 0) { //each three positive ball we spawn a negative one
+					newBall = new Ball(false); //false means that the ball is a negative one
+				} else {
+					newBall = new Ball(true); //true means that the ball is a positive one
+				}
+				
+				ballList.add(newBall);
+				Thread t = new Thread(newBall);
+	            t.start();
+	            counterNegativeBalls++;
+			}
+		} else { //we don't have negative balls
+			if (Ball.isReadyToSpawn(level)) {
+				Ball newBall; //create a new ball
+				newBall = new Ball(true); //balls are always positive, so we pass 'true' as argument
+				ballList.add(newBall);
+				Thread t = new Thread(newBall);
+	            t.start();
+			}
 		}
 	}
 	
 	
 	
-	public void updatePoints(boolean increase) { //increase or decrease the points whether the ball was red or black
+	public void updatePoints(boolean increase) { //increase or decrease the points whether the ball was green or red (positive or negative)
 		if (increase) {
 			this.points++;
-			System.out.println("Nuovo punteggio: " + points);
-		} else {
-			this.points--;
+		} else if (chosenDifficulty == 2) {
+			this.points--; //at intermediate level negative balls decrement the score by 1 point
+		} else if (chosenDifficulty == 3) {
+			this.points = this.points - 3; //at advanced level negative balls decrement the score by 3 points
 		}
 	}
 	
 	
 	
-	public void endGame() {
+	public void pause() {
+		this.isPaused = true;
+	}
+	
+	
+	
+	public void resume() {
+		this.isPaused = false;
+	}
+	
+	
+	
+	public void endGame(boolean interrupted) {
+		this.interrupted = interrupted;
+		capture.release(); //first delete the camera
+		optFlow.stop(true); //stop the opticalFlow thread
+		end = true; //set the variable 'end' to true so that the level thread stops too
+				
 		for (Ball ball : ballList) { //iterate through the list
-			ball.finished();
+			ball.finished(); //stop the threads of all the remaining balls
 		}
 		ballList.clear(); //delete all the balls from the list
 		
 		Menu.appFrame.remove(gamePanel); //remove the gamePanel from the JFrame
-		
-		//"go back" to the main menu
-		MenuPanel menuPanel = new MenuPanel();
-		Menu.appFrame.add(menuPanel);
 		Menu.appFrame.revalidate();
 		Menu.appFrame.repaint();
+		
+		if (!interrupted) {
+			System.out.println("CIAONE");
+			//create the end game menu
+			EndGamePanel endGamePanel = new EndGamePanel();
+			Menu.appFrame.add(endGamePanel);
+			Menu.appFrame.revalidate();
+			Menu.appFrame.repaint();
+		}
+	}
+
+
+
+	public int getPoints() {
+		return this.points;
 	}
 }

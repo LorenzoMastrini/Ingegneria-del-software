@@ -45,8 +45,8 @@ class OpticalFlow implements Runnable {
 		        Mat new_angle = new Mat();
 		        Core.multiply(angle, new Scalar(factor), new_angle);
 		        angle_mat = angle;
-		        
-/*				//only used to visualize the optical flow
+/*		        
+				//only used to visualize the optical flow
 		        //build hsv image
 		        ArrayList<Mat> _hsv = new ArrayList<>() ;
 		        Mat hsv = new Mat(), hsv8 = new Mat(), bgr = new Mat();

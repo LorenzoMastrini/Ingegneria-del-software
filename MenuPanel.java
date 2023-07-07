@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -15,18 +16,25 @@ public class MenuPanel extends JPanel implements ActionListener {
 	
 	
 	
-	public MenuPanel() {		
+	public MenuPanel() {
+		setPreferredSize(new Dimension(Level.MAX_WIDTH, Level.MAX_HEIGHT));
+		
+		int buttonsWidth = 250;
+		int buttonsHeight = 100;
+		int secondaryButtonsWidth = 150;
+		int secondaryButtonsHeight = 50;
+		
 		//Title
 		JLabel label = new JLabel();
 		label.setText("CatcheM_CV");
 		label.setForeground(Color.black);
-		label.setBounds(290, 10, 100, 50);
+		label.setBounds(Level.MAX_WIDTH/2 - 50, 10, 100, 50);
 		this.add(label);
 		
 		//button for the base level
 		baseLvButton = new JButton();
 		baseLvButton.addActionListener(this);
-		baseLvButton.setBounds(200, 100, 250, 100);
+		baseLvButton.setBounds(Level.MAX_WIDTH/2 - buttonsWidth/2, 80, buttonsWidth, buttonsHeight);
 		baseLvButton.setText("Livello base");
 		baseLvButton.setFocusable(false);
 		this.add(baseLvButton);
@@ -34,7 +42,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//button for the intermediate level
 		intermediateLvButton = new JButton();
 		intermediateLvButton.addActionListener(this);
-		intermediateLvButton.setBounds(200, 200, 250, 100);
+		intermediateLvButton.setBounds(Level.MAX_WIDTH/2 - buttonsWidth/2, 80 + buttonsHeight, buttonsWidth, buttonsHeight);
 		intermediateLvButton.setText("Livello intermedio");
 		intermediateLvButton.setFocusable(false);
 		this.add(intermediateLvButton);
@@ -42,15 +50,15 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//button for the advanced level
 		advancedLvButton = new JButton();
 		advancedLvButton.addActionListener(this);
-		advancedLvButton.setBounds(200, 300, 250, 100);
+		advancedLvButton.setBounds(Level.MAX_WIDTH/2 - buttonsWidth/2, 80 + buttonsHeight*2, buttonsWidth, buttonsHeight);
 		advancedLvButton.setText("Livello avanzato");
 		advancedLvButton.setFocusable(false);
 		this.add(advancedLvButton);
 		
-		//button for the advanced level
+		//button for the training level
 		trainingLvButton = new JButton();
 		trainingLvButton.addActionListener(this);
-		trainingLvButton.setBounds(0, 418, 200, 50);
+		trainingLvButton.setBounds(0, Level.MAX_HEIGHT - secondaryButtonsHeight, secondaryButtonsWidth, secondaryButtonsHeight);
 		trainingLvButton.setText("Addestramento");
 		trainingLvButton.setFocusable(false);
 		this.add(trainingLvButton);
@@ -58,7 +66,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//button for exiting the game
 		quitButton = new JButton();
 		quitButton.addActionListener(this);
-		quitButton.setBounds(450, 418, 200, 50);
+		quitButton.setBounds(Level.MAX_WIDTH - secondaryButtonsWidth, Level.MAX_HEIGHT - secondaryButtonsHeight, secondaryButtonsWidth, secondaryButtonsHeight);
 		quitButton.setText("Esci dal gioco");
 		quitButton.setFocusable(false);
 		this.add(quitButton);
@@ -75,25 +83,25 @@ public class MenuPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		//level 1
 		if (e.getSource() == baseLvButton) {
-			Level baseLevel = new Level(); //instantiate the level at base difficulty
+			Level baseLevel = new Level(1); //instantiate the level at base difficulty
 	        baseLevel.start();
 		}
 		
 		//level 2
 		if (e.getSource() == intermediateLvButton) {
-			Level intermediateLevel = new Level(); //instantiate the level at medium difficulty
+			Level intermediateLevel = new Level(2); //instantiate the level at medium difficulty
 			intermediateLevel.start();
 		}
 		
 		//level 3
 		if (e.getSource() == advancedLvButton) {
-			Level advancedLevel = new Level(); //instantiate the level at high difficulty
+			Level advancedLevel = new Level(3); //instantiate the level at high difficulty
 			advancedLevel.start();
 		}
 		
 		//introduction level
 		if (e.getSource() == trainingLvButton) {
-			Level tutorialLevel = new Level(); //instantiate the level at medium difficulty
+			Level tutorialLevel = new Level(0); //instantiate the level at medium difficulty
 			tutorialLevel.start();
 		}
 		

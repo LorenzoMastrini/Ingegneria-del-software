@@ -13,27 +13,39 @@ public class Ball implements Runnable {
 	private boolean isGood; //whether the ball increase or decrease the points if it gets to the target
 	public double dx, dy; //shift values; they represent the speed and the direction of the ball
 	public Point position;
-	
 	private long time;
+	private boolean suspended;
 
 	
 
-	public Ball() {
+	public Ball(boolean isGood) {
 		//the arguments of Point() function (position.x, position.y) are the top-left coordinates of the bounding box of the circle
 		this.position = new Point((int) (Math.random() * (Level.MAX_WIDTH - Ball.DIAMETER)),(int) (Math.random() * (Level.MAX_HEIGHT - Ball.DIAMETER)));
 		this.end = false;
-		this.isGood = true;
+		this.isGood = isGood;
 		//initial speed and direction of the new created ball
 		this.dx = 5;
 		this.dy = 5;
 		this.time = 0;
+		this.suspended = false;
 	}
+	
+	public synchronized void suspend() {
+		suspended = true;
+		try {
+			this.wait();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+    public synchronized void resume() { suspended = false; notify(); }
 
-
+	
+	
 	@Override
 	public void run() {
 		while(!end) {
-			double angle = OpticalFlow.getAngle(position); //estimated angle of the movement of the hand when there's a collision with the ball
+			while(suspended) {}
 			position.x += dx;
 	        position.y += dy;
 	        
@@ -56,16 +68,18 @@ public class Ball implements Runnable {
 				e.printStackTrace();
 			}
 			
+			
 			MatOfPoint2f hand = new MatOfPoint2f(); //this object contains the points that represent the contours of the hand
 			if (!Level.biggestContours.empty()) {
 				Level.biggestContours.convertTo(hand, CvType.CV_32FC2); //this step is necessary to use the function pointPolygonTest()
 				if (!hand.empty()) {
 					if (Imgproc.pointPolygonTest(hand, new Point(position.x + DIAMETER/2, position.y + DIAMETER/2), false) >= 0 && System.currentTimeMillis() - time > 400) { //adds a short delay
 						time = System.currentTimeMillis();
+						double angle = OpticalFlow.getAngle(position); //estimated angle of the movement of the hand when there's a collision with the ball
 						
 						//we have 8 possible directions in which the ball can go
 						if (position.x + DIAMETER <= Level.MAX_WIDTH && position.x >= 0 && position.y + DIAMETER <= Level.MAX_HEIGHT && position.y >= 0) { //the ball needs to be inside the image
-				        	if (angle >= 337 || angle < 23 && angle != 0) { //0 degrees
+							if (angle >= 337 || angle < 23) { //0 degrees
 				        		System.out.println("Destra");
 				        		dx = 5;
 				        		dy = 0;
