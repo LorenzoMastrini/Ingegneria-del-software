@@ -15,10 +15,10 @@ public class Menu  {
 	   if (path == null) {
 	     throw new RuntimeException("Path isn't set.");
 	   }
-
+/*
 	   var paths = java.util.List.of(path.split(";"));
 	   //paths.forEach(System.out::println);
-/*
+
 	   if (!paths.contains("C:/Users/Rollbar/lib")) {
 	     throw new RuntimeException("Path to library is missing.");
 	   }
@@ -30,7 +30,7 @@ public class Menu  {
 	
 	public static void main(String[] args) throws IOException {
 		//System.getProperty("java.library.path");
-		//ystem.loadLibrary(Core.NATIVE_LIBRARY_NAME); //load OpenCV library
+		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME); //load OpenCV library
 		
 		
 		//this is necessary to get the max supported camera sizes to create the JFrame
@@ -39,6 +39,7 @@ public class Menu  {
             System.out.println("Unable to open camera!"); //error in opening the video input
             System.exit(-1);
         }
+        
         //save the maximum values of width and height of the image (in pixels) based on the resolution of the camera
         Level.MAX_WIDTH = (int) capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
     	Level.MAX_HEIGHT = (int) capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);

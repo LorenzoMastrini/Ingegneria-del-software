@@ -1,4 +1,6 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -8,19 +10,22 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
 
 public class GamePanel extends JPanel implements ActionListener {
 	private Level level;
-	private JButton pauseButton;
+	private JLabel counterLabel;
+	public JButton pauseButton;
 	private Target target; //where the balls should enter
 	
 	public GamePanel(Level level) {
 		this.removeAll();
 		this.setBackground(Color.black);
-		//setPreferredSize(new Dimension(Level.MAX_WIDTH, Level.MAX_HEIGHT));
+		this.setPreferredSize(new Dimension(Level.MAX_WIDTH, Level.MAX_HEIGHT));
+		this.setLayout(new BorderLayout());
 		this.level = level;
 		this.target = new Target();
 		
@@ -37,15 +42,22 @@ public class GamePanel extends JPanel implements ActionListener {
 		pauseButton.setContentAreaFilled(false); 
 		pauseButton.setFocusPainted(false); 
 		pauseButton.setOpaque(false);
-		this.add(this.pauseButton);
+		this.add(this.pauseButton, BorderLayout.EAST);
+		
+		counterLabel = new JLabel(); //label to draw the timer
+		counterLabel.setFont(new Font("Arial", Font.PLAIN, 30));
+		counterLabel.setHorizontalAlignment(JLabel.CENTER);
+		this.add(counterLabel, BorderLayout.NORTH);
 	}
 	
 	
 	
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		g2d.drawImage(Level.currentFrame, null, 0, 0); //draw the bufferedImage originally read by the camera
 		
+		g2d.drawImage(Level.currentFrame, null, 0, 0); //draw the bufferedImage originally read by the camera
+				
+		counterLabel.setText(level.minute + ":" + level.second); //constantly update the timer
 		pauseButton.setBounds(Level.MAX_WIDTH - 50, 0, 50, 50);
 
 		if (!level.isPaused) {
@@ -88,10 +100,13 @@ public class GamePanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == pauseButton) {
-			
-			PausePanel pausePanel = new PausePanel(level);
+			pauseButton.setEnabled(false);
+			level.timer.stop();
 			level.pause();
-			Menu.appFrame.add(pausePanel);
+			
+			PausePanel pausePanel = new PausePanel(level, this);
+            this.add(pausePanel, BorderLayout.CENTER);
+            this.repaint();
 		}
 	}
 }

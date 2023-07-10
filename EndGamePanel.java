@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class EndGamePanel extends JPanel implements ActionListener {
@@ -12,11 +13,23 @@ public class EndGamePanel extends JPanel implements ActionListener {
 	
 	
 	
-	public EndGamePanel() {
+	public EndGamePanel(Level level) {
+		//draw a string to write the result of the game
+		JLabel label = new JLabel();
+		if (level.victory == true) {
+			label.setText("Vittoria!");
+			label.setForeground(Color.green);
+		} else {
+			label.setText("Sconfitta!");
+			label.setForeground(Color.red);
+		}
+		label.setBounds(Level.MAX_WIDTH/2 - 50, 10, 100, 50);
+		this.add(label);
+		
 		//button to return to the main menu
 		mainMenuButton = new JButton();
 		mainMenuButton.addActionListener(this);
-		mainMenuButton.setBounds(200, 100, 300, 100);
+		mainMenuButton.setBounds(200, 200, 200, 100);
 		mainMenuButton.setText("Torna al menu principale");
 		mainMenuButton.setFocusable(false);
 		this.add(mainMenuButton);
@@ -41,6 +54,9 @@ public class EndGamePanel extends JPanel implements ActionListener {
 		this.setBackground(Color.white);
 		this.setBounds(0, 0, Level.MAX_WIDTH, Level.MAX_HEIGHT);
 		this.setLayout(new BorderLayout());
+		
+		Menu.appFrame.revalidate();
+		Menu.appFrame.repaint();
 	}
 
 	

@@ -30,16 +30,6 @@ public class Ball implements Runnable {
 		this.suspended = false;
 	}
 	
-	public synchronized void suspend() {
-		suspended = true;
-		try {
-			this.wait();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-    public synchronized void resume() { suspended = false; notify(); }
-
 	
 	
 	@Override
