@@ -5,6 +5,7 @@ import org.opencv.videoio.Videoio;
 
 
 public class Menu  {
+	
 	public static MyFrame appFrame;
 	public static MenuPanel menuPanel;
 	
@@ -49,7 +50,7 @@ public class Menu  {
 		appFrame = new MyFrame();
 		
 		//creates and adds the JPanel to the frame
-		MenuPanel menuPanel = new MenuPanel();
+		menuPanel = new MenuPanel();
 		appFrame.add(menuPanel);
 		appFrame.pack();
 		return;

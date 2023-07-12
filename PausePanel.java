@@ -17,6 +17,9 @@ public class PausePanel extends JPanel implements ActionListener {
 	private JButton quitButton;
 	private GamePanel gamePanel;
 	
+	private int MAX_WIDTH = 640;
+	private int MAX_HEIGHT = 480;
+	
 	
 	
 	public PausePanel(Level level, GamePanel gamePanel) {
@@ -56,8 +59,9 @@ public class PausePanel extends JPanel implements ActionListener {
 		this.add(quitButton);
 		
 		//set up the JPanel properties
+		this.setLayout(null);
 		this.setBackground(Color.white);
-		this.setBounds(Level.MAX_WIDTH/2 - width/2, Level.MAX_HEIGHT/2 - height/2, this.width, this.height);
+		this.setBounds(MAX_WIDTH/2 - width/2, MAX_HEIGHT/2 - height/2, this.width, this.height);
 	}
 
 	
@@ -84,6 +88,10 @@ public class PausePanel extends JPanel implements ActionListener {
 			
 			//recreate the level at the previously chosen difficulty
 			switch (difficulty_tmp) {
+				case 0:
+					Level trainingLevel = new Level(0); //instantiate the training level
+					trainingLevel.start();
+					break;
 				case 1:
 					Level baseLevel = new Level(1); //instantiate the level at medium difficulty
 					baseLevel.start();
@@ -108,7 +116,7 @@ public class PausePanel extends JPanel implements ActionListener {
 			
 			//"go back" to the main menu, adding to the frame the corresponding panel
 			MenuPanel menuPanel = new MenuPanel();
-			Menu.appFrame.add(menuPanel);
+			Menu.appFrame.getContentPane().add(menuPanel);
 			Menu.appFrame.revalidate();
 			Menu.appFrame.repaint();
 		}

@@ -1,11 +1,19 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class MenuPanel extends JPanel implements ActionListener {
 	private JButton baseLvButton;
@@ -14,10 +22,30 @@ public class MenuPanel extends JPanel implements ActionListener {
 	private JButton trainingLvButton;
 	private JButton quitButton;
 	
+	private int MAX_WIDTH = 640;
+	private int MAX_HEIGHT = 480;
+	
 	
 	
 	public MenuPanel() {
-		setPreferredSize(new Dimension(Level.MAX_WIDTH, Level.MAX_HEIGHT));
+		setPreferredSize(new Dimension(MAX_WIDTH, MAX_HEIGHT));
+		//sets up the JPanel properties
+		this.setLayout(null);
+		/*
+		//draw an image to show the result of the game
+		Image backgroundImg = new BufferedImage(MAX_WIDTH, MAX_HEIGHT, BufferedImage.TYPE_3BYTE_BGR); 
+		JLabel background = new JLabel();
+		try {
+			backgroundImg = ImageIO.read(new File("./res/menu_background.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		backgroundImg = backgroundImg.getScaledInstance(MAX_WIDTH, MAX_HEIGHT, Image.SCALE_SMOOTH); //resize the image
+		ImageIcon icon = new ImageIcon(backgroundImg);
+		background.setIcon(icon);
+		background.setBounds(0, 0, MAX_WIDTH, MAX_HEIGHT); //same size of the mainMenuButton horizontally
+		this.add(background);
+		*/
 		
 		int buttonsWidth = 250;
 		int buttonsHeight = 100;
@@ -26,15 +54,16 @@ public class MenuPanel extends JPanel implements ActionListener {
 		
 		//Title
 		JLabel label = new JLabel();
+		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setText("CatcheM_CV");
 		label.setForeground(Color.black);
-		label.setBounds(Level.MAX_WIDTH/2 - 50, 10, 100, 50);
+		label.setBounds(MAX_WIDTH/2 - 50, 10, 100, 50);
 		this.add(label);
 		
 		//button for the base level
 		baseLvButton = new JButton();
 		baseLvButton.addActionListener(this);
-		baseLvButton.setBounds(Level.MAX_WIDTH/2 - buttonsWidth/2, 80, buttonsWidth, buttonsHeight);
+		baseLvButton.setBounds(MAX_WIDTH/2 - buttonsWidth/2, 80, buttonsWidth, buttonsHeight);
 		baseLvButton.setText("Livello base");
 		baseLvButton.setFocusable(false);
 		this.add(baseLvButton);
@@ -42,7 +71,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//button for the intermediate level
 		intermediateLvButton = new JButton();
 		intermediateLvButton.addActionListener(this);
-		intermediateLvButton.setBounds(Level.MAX_WIDTH/2 - buttonsWidth/2, 80 + buttonsHeight, buttonsWidth, buttonsHeight);
+		intermediateLvButton.setBounds(MAX_WIDTH/2 - buttonsWidth/2, 80 + buttonsHeight, buttonsWidth, buttonsHeight);
 		intermediateLvButton.setText("Livello intermedio");
 		intermediateLvButton.setFocusable(false);
 		this.add(intermediateLvButton);
@@ -50,7 +79,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//button for the advanced level
 		advancedLvButton = new JButton();
 		advancedLvButton.addActionListener(this);
-		advancedLvButton.setBounds(Level.MAX_WIDTH/2 - buttonsWidth/2, 80 + buttonsHeight*2, buttonsWidth, buttonsHeight);
+		advancedLvButton.setBounds(MAX_WIDTH/2 - buttonsWidth/2, 80 + buttonsHeight*2, buttonsWidth, buttonsHeight);
 		advancedLvButton.setText("Livello avanzato");
 		advancedLvButton.setFocusable(false);
 		this.add(advancedLvButton);
@@ -58,7 +87,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//button for the training level
 		trainingLvButton = new JButton();
 		trainingLvButton.addActionListener(this);
-		trainingLvButton.setBounds(0, Level.MAX_HEIGHT - secondaryButtonsHeight, secondaryButtonsWidth, secondaryButtonsHeight);
+		trainingLvButton.setBounds(0, MAX_HEIGHT - secondaryButtonsHeight, secondaryButtonsWidth, secondaryButtonsHeight);
 		trainingLvButton.setText("Addestramento");
 		trainingLvButton.setFocusable(false);
 		this.add(trainingLvButton);
@@ -66,15 +95,10 @@ public class MenuPanel extends JPanel implements ActionListener {
 		//button for exiting the game
 		quitButton = new JButton();
 		quitButton.addActionListener(this);
-		quitButton.setBounds(Level.MAX_WIDTH - secondaryButtonsWidth, Level.MAX_HEIGHT - secondaryButtonsHeight, secondaryButtonsWidth, secondaryButtonsHeight);
+		quitButton.setBounds(MAX_WIDTH - secondaryButtonsWidth, MAX_HEIGHT - secondaryButtonsHeight, secondaryButtonsWidth, secondaryButtonsHeight);
 		quitButton.setText("Esci dal gioco");
 		quitButton.setFocusable(false);
 		this.add(quitButton);
-		
-		//sets up the JPanel properties
-		this.setBackground(Color.white);
-		this.setBounds(0, 0, Level.MAX_WIDTH, Level.MAX_HEIGHT);
-		this.setLayout(new BorderLayout());
 	}
 
 	

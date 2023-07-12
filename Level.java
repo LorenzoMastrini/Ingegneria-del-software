@@ -18,8 +18,8 @@ public class Level implements Runnable {
 	public static final double MAX_UPS = 20;
 	public static final int MAX_POINTS = 10; //points to win the game
 	//maximum values of width and height of the image (in pixels) based on the resolution of the camera
-	public static int MAX_WIDTH;
-	public static int MAX_HEIGHT;
+	public static int MAX_WIDTH = 640;
+	public static int MAX_HEIGHT = 480;
 	public List<Ball> ballList;
 	public static MatOfPoint biggestContours;
 	public static BufferedImage currentFrame; //used in the GamePanel class to draw the images read by the camera
@@ -30,7 +30,7 @@ public class Level implements Runnable {
 	private GamePanel gamePanel;
 	private int points; //points during the game
 	public Timer timer;
-	public int second = 0, minute = 1; //initial available time
+	public int second = 10, minute = 0; //initial available time
 	private DecimalFormat dFormat = new DecimalFormat("00");
 	private int counterNegativeBalls;
 	public boolean isPaused;
@@ -110,17 +110,17 @@ public class Level implements Runnable {
             
             //if the game has been stopped do not update the current situation (points, timer, spawned balls, ...)
             if(!this.isPaused) {
-            	this.update(this); //checks if we have to update the game in terms of how many balls are on screen, and eventually adds new ones
+            	this.updateBalls(this); //checks if we have to update the game in terms of how many balls are on screen, and eventually adds new ones
             	
     			Menu.appFrame.revalidate();
     			Menu.appFrame.repaint();
             	gamePanel.repaint(); //draw the image and every graphic component of the game (balls, target, timer, ...)
             }
             
-            if (this.points == MAX_POINTS) {
+            if (this.points == MAX_POINTS && chosenDifficulty != 0) {
             	victory = true;
             	endGame(false);
-            } else if (this.second == 0 && this.minute == 0) {
+            } else if (this.second == 0 && this.minute == 0 && chosenDifficulty != 0) {
             	victory = false;
             	endGame(false);
             }
@@ -173,7 +173,7 @@ public class Level implements Runnable {
 	
 	
 	//method responsible for checking if we have to generate new balls
-	public void update(Level level) {
+	public void updateBalls(Level level) {
 		if (chosenDifficulty == 0) { //in level 0 we have only one positive ball
 			if (ballList.isEmpty()) {
 				Ball newBall; //create a new ball

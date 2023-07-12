@@ -63,7 +63,7 @@ public class Ball implements Runnable {
 			if (!Level.biggestContours.empty()) {
 				Level.biggestContours.convertTo(hand, CvType.CV_32FC2); //this step is necessary to use the function pointPolygonTest()
 				if (!hand.empty()) {
-					if (Imgproc.pointPolygonTest(hand, new Point(position.x + DIAMETER/2, position.y + DIAMETER/2), false) >= 0 && System.currentTimeMillis() - time > 400) { //adds a short delay
+					if (Imgproc.pointPolygonTest(hand, new Point(this.getCenter().x, this.getCenter().y), false) >= 0 && System.currentTimeMillis() - time > 400) { //adds a short delay
 						time = System.currentTimeMillis();
 						double angle = OpticalFlow.getAngle(position); //estimated angle of the movement of the hand when there's a collision with the ball
 						
