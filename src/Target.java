@@ -12,18 +12,6 @@ public class Target extends Ellipse2D {
 	
 	
 	
-	public double getXCenter() {
-		return POSITION_X + this.WIDTH/2;
-	}
-	
-	
-	
-	public double getYCenter() {
-		return POSITION_Y + this.HEIGHT/2;
-	}
-	
-	
-	
 	@Override
 	public Rectangle2D getBounds2D() {
 		return new Rectangle(POSITION_X, POSITION_Y, WIDTH, HEIGHT);
