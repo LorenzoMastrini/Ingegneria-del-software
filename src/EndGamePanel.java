@@ -13,7 +13,6 @@ import javax.swing.SwingConstants;
 public class EndGamePanel extends JPanel implements ActionListener {
 	private JButton mainMenuButton;
 	private JButton restartButton;
-	private JButton quitButton;
 	
 	
 	
@@ -101,11 +100,6 @@ public class EndGamePanel extends JPanel implements ActionListener {
 					advancedLevel.start();
 					break;
 			}
-		}
-		
-		//exit the game
-		if (e.getSource() == quitButton) {
-			System.exit(0);
 		}
 		
 		//delete the current panel from the frame, no matter which button is pressed
