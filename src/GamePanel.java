@@ -20,9 +20,8 @@ public class GamePanel extends JPanel implements ActionListener {
 	private Image targetImg;
 	private Image yellowBallImg;
 	private Image redBallImg;
-	public JButton pauseButton;
 	private Font labelsFont;
-	
+	public JButton pauseButton;
 	
 	
 	public GamePanel(Level level) {
