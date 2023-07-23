@@ -14,7 +14,6 @@ public class PausePanel extends JPanel implements ActionListener {
 	private JButton resumeButton;
 	private JButton mainMenuButton;
 	private JButton restartButton;
-	private JButton exitButton;
 	private GamePanel gamePanel;
 	
 	
@@ -135,11 +134,6 @@ public class PausePanel extends JPanel implements ActionListener {
 			//"go back" to the main menu, adding to the frame the corresponding panel
 			MenuPanel menuPanel = new MenuPanel();
 			Main.appFrame.addPanel(menuPanel);
-		}
-		
-		//exit the game
-		if (e.getSource() == exitButton) {
-			System.exit(0);
 		}
 	}
 }
