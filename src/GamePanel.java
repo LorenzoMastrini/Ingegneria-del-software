@@ -24,6 +24,7 @@ public class GamePanel extends JPanel implements ActionListener {
 	public JButton pauseButton;
 	
 	
+	
 	public GamePanel(Level level) {
 		this.removeAll();
 		this.setBackground(Color.black);
@@ -119,7 +120,6 @@ public class GamePanel extends JPanel implements ActionListener {
 		} else {
 			g2d.drawString(String.valueOf(level.getPoints()), Main.BORDERS_LIMIT, Level.maxHeight - Main.BORDERS_LIMIT); //paint on the bottom-left corner
 		}
-		
 	}
 
 
@@ -128,7 +128,6 @@ public class GamePanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == pauseButton) {
 			pauseButton.setEnabled(false);
-			level.timer.stop();
 			level.pause();
 
 			PausePanel pausePanel = new PausePanel(level, this);

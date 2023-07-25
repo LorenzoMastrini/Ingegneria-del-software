@@ -14,21 +14,21 @@ class OpticalFlow implements Runnable {
 	private Thread t;
 	private Mat frame1;
 	private Mat frame2;
-	private boolean interrupted;
+	private boolean end;
 	
 	
 	
 	public OpticalFlow() {
 		this.frame1 = new Mat();
 		this.frame2 = new Mat();
-		this.interrupted = false;
+		this.end = false;
 	}
 	
 	
 	
 	@Override
 	public void run() {
-		while(!interrupted) {
+		while(!end) {
 			if (!this.frame1.empty() || !this.frame2.empty()) { //starts only if there are two frames to be analyzed
 				Mat prvs = new Mat();
 		        Imgproc.cvtColor(frame1, prvs, Imgproc.COLOR_BGR2GRAY);
@@ -38,7 +38,6 @@ class OpticalFlow implements Runnable {
 
 		        Mat flow = new Mat(prvs.size(), CvType.CV_32FC2);
 		        Video.calcOpticalFlowFarneback(prvs, next, flow, 0.5, 1, 35, 3, 7, 1.5, Video.OPTFLOW_FARNEBACK_GAUSSIAN); //standard parameters: (prvs, next, flow,0.5,3,15,3,5,1.2,0)
-		        //vecchi parametri: (prvs, next, flow, 0.5, 3, 30, 3, 7, 1.5, 0)
 		        
 		        // visualization
 		        ArrayList<Mat> flow_parts = new ArrayList<>(2);
@@ -87,7 +86,7 @@ class OpticalFlow implements Runnable {
 	
 	//method used in the Level class to end the execution of this thread
 	public void stop(boolean interrupted) {
-		this.interrupted = true;
+		this.end = true;
 	}
 	
 	
@@ -117,7 +116,7 @@ class OpticalFlow implements Runnable {
         }
         int angle_mean = 0;
         angle_mean = (int) (angle_sum / elements) % 360; //all the angles are between 0 degrees and 360 degrees
-        System.out.println("angolo: " + angle_mean);
+
         return angle_mean;
 	}
 }

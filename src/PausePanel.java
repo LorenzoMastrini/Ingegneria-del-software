@@ -101,13 +101,12 @@ public class PausePanel extends JPanel implements ActionListener {
 		
 		//restart the level at same difficulty
 		if (e.getSource() == restartButton) {
-			int difficulty_tmp = Level.chosenDifficulty;
 			level.endGame(true); //delete all game-related info and remove the gamePanel from the JFrame
 			
 			Main.appFrame.removePanel(this); //remove the pausePanel from the JFrame
 			
 			//recreate the level at the previously chosen difficulty
-			switch (difficulty_tmp) {
+			switch (Level.chosenDifficulty) {
 				case 0:
 					Level trainingLevel = new Level(0); //instantiate the training level
 					trainingLevel.start();

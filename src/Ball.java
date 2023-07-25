@@ -8,7 +8,7 @@ import org.opencv.imgproc.Imgproc;
 
 public class Ball implements Runnable {
 	public static final int DIAMETER = 40; //diameter is fixed and it is the same for all the balls
-	public double dx, dy; //shift values; they represent the speed and the direction of the ball
+	public int dx, dy; //shift values; they represent the speed and the direction of the ball
 	public Point position;
 	private static final double SPAWNS_PER_MINUTE = 30;
 	private static final double SPAWNS_PER_SECOND = SPAWNS_PER_MINUTE / 60.0;
@@ -45,10 +45,6 @@ public class Ball implements Runnable {
 	@Override
 	public void run() {
 		while(!end) {
-			/*if(suspended) {
-				continue; //do nothing if the game is paused
-			}*/
-			
 			while(suspended) { //do nothing if the game is paused
 				if(!suspended)
 					break;
@@ -88,35 +84,27 @@ public class Ball implements Runnable {
 						//we have 8 possible directions in which the ball can go
 						if (position.x + DIAMETER <= Level.maxWidth && position.x >= 0 && position.y + DIAMETER <= Level.maxHeight && position.y >= 0) { //the ball needs to be inside the image
 							if (angle >= 337 || angle < 23) { //0 degrees
-				        		System.out.println("Destra");
 				        		dx = 5;
 				        		dy = 0;
 				        	} else if (angle >= 23 && angle < 67) { //45 degrees
-				        		System.out.println("Basso-destra");
 				        		dx = 5;
 				        		dy = 5;
 				        	} else if (angle >= 67 && angle < 112) { //90 degrees
-				        		System.out.println("Basso");
 				        		dx = 0;
 				        		dy = 5;
 				        	} else if (angle >= 112 && angle < 157) { //135 degrees
-				        		System.out.println("Basso-sinistra");
 				        		dx = -5;
 				        		dy = 5;
 				        	} else if (angle >= 157 && angle < 202) { //180 degrees
-				        		System.out.println("Sinistra");
 				        		dx = -5;
 				        		dy = 0;
 				        	} else if (angle >= 202 && angle < 247) { //225 degrees
-				        		System.out.println("Alto-sinistra");
 				        		dx = -5;
 				        		dy = -5;
 				        	} else if (angle >= 247 && angle < 292) { //270 degrees
-				        		System.out.println("Alto");
 				        		dx = 0;
 				        		dy = -5;
 				        	} else if (angle >= 292 && angle < 337) { //315
-				        		System.out.println("Alto-destra");
 				        		dx = 5;
 				        		dy = -5;
 				        	}

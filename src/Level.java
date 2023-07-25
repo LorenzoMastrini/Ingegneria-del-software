@@ -36,7 +36,7 @@ public class Level implements Runnable {
 	private VideoCapture capture;
 	private GamePanel gamePanel;
 	private OpticalFlow optFlow;
-	private DecimalFormat dFormat = new DecimalFormat("00");
+	private DecimalFormat dFormat;
 	
 	
 	public Level(int difficulty) {
@@ -56,6 +56,7 @@ public class Level implements Runnable {
 		this.isPaused = false;
 		this.interrupted = false;
 		this.victory = false;
+		this.dFormat = new DecimalFormat("00");
 		chosenDifficulty = difficulty;
 		biggestContours = new MatOfPoint();
 	}
@@ -69,29 +70,31 @@ public class Level implements Runnable {
         this.optFlow = new OpticalFlow(); //instantiate the OpticalFlow thread (runs during the whole Level thread execution)
         optFlow.start();
         
-        //start the timer for the game
-        timer();
+        timer(); //start the timer for the game
 		
 		Main.appFrame.addPanel(gamePanel);
 		
+		//matrixes read by camera
+		Mat src = new Mat(); //src is used to make all image processing operations, and it is the one that is displayed
+		//src1 e src2 are the matrixes passed to the optical flow algorithm and they are used only for this purpose
+		Mat src1 = new Mat();
+		Mat src2 = new Mat();
+		Mat fg_mask; //foreground mask, used to find hand contours
+		
         //main loop
         while (!end) {
-        	//src is used to make all image processing operations, and it is the one that is displayed
-        	Mat src = new Mat();
             capture.read(src); //read frame from webcam
             if (src.empty()) {
                 break;
             }
             Core.flip(src, src, 1); //makes the image mirrored
             
-            //src1 e src2 are the matrixes passed to the optical flow algorithm and they are used only for this purpose
-            Mat src1 = new Mat();
             capture.read(src1); //read frame from webcam
             if (src1.empty()) {
                 break;
             }
             Core.flip(src1, src1, 1); //makes the image mirrored
-            Mat src2 = new Mat();
+            
             capture.read(src2); //read frame from webcam
             if (src2.empty()) {
                 break;
@@ -100,7 +103,7 @@ public class Level implements Runnable {
         	
             optFlow.set(src1, src2); //pass to the optical flow class two consecutive frames to make it work
             
-            Mat fg_mask = ImgProcessor.filter(src, MOG2); //processing operations on the image and returns the foreground mask
+            fg_mask = ImgProcessor.filter(src, MOG2); //processing operations on the image and returns the foreground mask
             
             biggestContours = ImgProcessor.contours(fg_mask); //returns the hand contours used to determine if the ball encounter the hand (in the Ball class)
             
@@ -166,6 +169,7 @@ public class Level implements Runnable {
 		});
 		
 		timer.start();
+		return;
 	}
 	
 	
@@ -229,6 +233,8 @@ public class Level implements Runnable {
 			ball.pause();
 		}
 		this.isPaused = true;
+		
+		this.timer.stop();
 	}
 	
 	
@@ -252,10 +258,10 @@ public class Level implements Runnable {
 	public void endGame(boolean interrupted) {
 		timer.stop(); //time's up
 		this.interrupted = interrupted;
-		capture.release(); //first delete the camera
+		capture.release(); //first release the camera
 		optFlow.stop(true); //stop the opticalFlow thread
 		end = true; //set the variable 'end' to true so that the level thread stops too
-				
+		
 		for (Ball ball : ballList) { //iterate through the list
 			ball.finished(); //stop the threads of all the remaining balls
 		}
